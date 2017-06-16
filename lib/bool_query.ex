@@ -1,8 +1,8 @@
-defmodule BoolQuery do
+defmodule Steroids.BoolQuery do
   @valid_conditions [:must, :must_not, :should]
 
-  def new(field, query), do: {:bool, field, cond_atom(:and), query}
-  def new(condition, field, query), do: {:bool, field, cond_atom(condition), query}
+  def new(field, clause), do: {:bool, field, cond_atom(:and), clause}
+  def new(condition, field, clause), do: {:bool, field, cond_atom(condition), clause}
 
   defp cond_atom(:mustNot), do: :must_not
   defp cond_atom(:and), do: :must

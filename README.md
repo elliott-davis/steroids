@@ -5,9 +5,8 @@ Easily build complex queries for elasticsearch with a simple, predictable api.
 
 ## Usage
 ```
-Steroids.new()
-|> Steroids.search(["foo", "bar"])
-|> Steroids.term("baz")
+Steroids.QueryBuilder.query(:term, ["foo", "bar"])
+|> Steroids.query(:term, "baz")
 |> Steroids.build()
 ```
 

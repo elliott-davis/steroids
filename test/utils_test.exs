@@ -1,10 +1,11 @@
 defmodule UtilsTest do
   use ExUnit.Case
-  doctest Utils
+  import Steroids.Utils, only: [boolMerge: 1, buildClause: 1]
+  doctest Steroids.Utils
   describe "Utils.boolMerge/1" do
     test "should do nothing with a single query" do
       q = [{:bool, :somequery, :must, %{} }]
-      result = Utils.boolMerge(q)
+      result = boolMerge(q)
       assert %{ somequery: %{} } == result
     end
 
@@ -21,7 +22,7 @@ defmodule UtilsTest do
           }
         }
 
-      actual = Utils.boolMerge(queries)
+      actual = boolMerge(queries)
 
       assert expected == actual
     end
@@ -43,7 +44,7 @@ defmodule UtilsTest do
           }
         }
 
-        actual = Utils.boolMerge(queries)
+        actual = boolMerge(queries)
 
         assert expected == actual
     end
@@ -52,26 +53,26 @@ defmodule UtilsTest do
   describe "Utils.buildClause/3" do
     test "should merge opts and field when field is an object" do
       expected = %{user: "me", opts: "bar"}
-      actual = Utils.buildClause(%{user: "me"}, nil, %{opts: "bar"})
+      actual = buildClause(field: %{user: "me"}, args: %{opts: "bar"})
       assert expected == actual
     end
 
     test "should merge opts when field is an atom and value is nil" do
       expected = %{field: "user", opts: "bar"}
-      actual = Utils.buildClause("user", nil, %{opts: "bar"})
+      actual = buildClause(field: "user", args: %{opts: "bar"})
       assert expected == actual
     end
 
     test "should merge opts when field is an atom and value is defined" do
       expected = %{user: "me", opts: "bar"}
-      actual = Utils.buildClause(:user, "me", %{opts: "bar"})
+      actual = buildClause(field: :user, value: "me", args: %{opts: "bar"})
       assert expected == actual
     end
 
     test "should format clause with an array value" do
       users = ["you", "me", "irene"]
       expected = %{ users: users }
-      actual = Utils.buildClause(:users, users)
+      actual = buildClause(field: :users, value: users)
       assert expected == actual
     end
   end

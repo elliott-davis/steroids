@@ -1,16 +1,13 @@
- defmodule QueryBuilder do
+ defmodule Steroids.QueryBuilder do
+  import Steroids.Utils, only: [boolMerge: 1, buildClause: 1]
   @moduledoc """
   Documentation for Query Module.
   """
 
-  def new do
-    []
-  end
+  def new, do: []
 
-  def query(queries, type), do: [BoolQuery.new(type, %{}) | queries]
-  def query(queries, type, field), do: [BoolQuery.new(type, Utils.buildClause(field, nil)) | queries]
-  def query(queries, type, field, value), do: [BoolQuery.new(type, Utils.buildClause(field, value)) | queries]
-  def query(queries, type, field, value, args), do: [BoolQuery.new(type, Utils.buildClause(field, value, args)) | queries]
+  def query(queries, type, opts \\ [])
+  def query(queries, type, opts), do: [Steroids.BoolQuery.new(type, buildClause(opts)) | queries]
 
   # # Alias for query
   # def andQuery(queries, args) do
@@ -30,7 +27,7 @@
   #   makeQuery(queries, :not, args)
   # end
 
-  def getQuery(queries), do: Utils.boolMerge(queries)
+  def getQuery(queries), do: boolMerge(queries)
 
   @doc """
   Minimum Should Match
