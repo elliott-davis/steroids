@@ -3,14 +3,14 @@ defmodule UtilsTest do
   doctest Utils
   describe "Utils.boolMerge/1" do
     test "should do nothing with a single query" do
-      q = [{:bool, :must, %{ somequery: %{} }}]
+      q = [{:bool, :somequery, :must, %{} }]
       result = Utils.boolMerge(q)
       assert %{ somequery: %{} } == result
     end
 
     test "should combine two queries into a bool" do
-      queries = [{:bool, :must, %{ term: %{ user: "me" } } },
-                  {:bool, :must, %{ term: %{ user: "him" } } }]
+      queries = [{:bool, :term, :must, %{ user: "me" } },
+                  {:bool, :term, :must, %{ user: "him" } }]
 
       expected = %{
           bool: %{
@@ -27,9 +27,9 @@ defmodule UtilsTest do
     end
 
     test "should combine two queries accounting for boolType" do
-        queries = [{:bool, :must, %{ term: %{ user: "me" } } },
-                  {:bool, :must_not, %{ term: %{ user: "you" } } },
-                  {:bool, :must, %{ term: %{ user: "him" } } }]
+        queries = [{:bool, :term, :must, %{ user: "me" } },
+                  {:bool, :term, :must_not, %{ user: "you" } },
+                  {:bool, :term, :must, %{ user: "him" } }]
 
         expected = %{
           bool: %{
@@ -50,21 +50,28 @@ defmodule UtilsTest do
   end
 
   describe "Utils.buildClause/3" do
-    test "should merge when field is a map and value is nil" do
-      expected = %{term: :user, opts: "bar"}
-      actual = Utils.buildClause(%{term: :user}, nil, %{opts: "bar"})
+    test "should merge opts and field when field is an object" do
+      expected = %{user: "me", opts: "bar"}
+      actual = Utils.buildClause(%{user: "me"}, nil, %{opts: "bar"})
       assert expected == actual
     end
 
-    test "should merge when field is an atom and value is nil" do
-      expected = %{field: :user, opts: "bar"}
-      actual = Utils.buildClause(:user, nil, %{opts: "bar"})
+    test "should merge opts when field is an atom and value is nil" do
+      expected = %{field: "user", opts: "bar"}
+      actual = Utils.buildClause("user", nil, %{opts: "bar"})
       assert expected == actual
     end
 
-    test "should merge when field is an atom and value is defined" do
-      expected = %{term: :user, opts: "bar"}
-      actual = Utils.buildClause(:term, :user, %{opts: "bar"})
+    test "should merge opts when field is an atom and value is defined" do
+      expected = %{user: "me", opts: "bar"}
+      actual = Utils.buildClause(:user, "me", %{opts: "bar"})
+      assert expected == actual
+    end
+
+    test "should format clause with an array value" do
+      users = ["you", "me", "irene"]
+      expected = %{ users: users }
+      actual = Utils.buildClause(:users, users)
       assert expected == actual
     end
   end

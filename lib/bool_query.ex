@@ -1,8 +1,8 @@
 defmodule BoolQuery do
   @valid_conditions [:must, :must_not, :should]
 
-  def new(query), do: {:bool, cond_atom(:and), query}
-  def new(condition, query), do: {:bool, cond_atom(condition), query}
+  def new(field, query), do: {:bool, field, cond_atom(:and), query}
+  def new(condition, field, query), do: {:bool, field, cond_atom(condition), query}
 
   defp cond_atom(:mustNot), do: :must_not
   defp cond_atom(:and), do: :must
