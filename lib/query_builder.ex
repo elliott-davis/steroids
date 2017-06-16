@@ -3,30 +3,32 @@
   @moduledoc """
   Documentation for Query Module.
   """
+  
   @spec new() :: list
   def new, do: []
 
   @spec query(list, atom, keyword) :: list
   def query(queries, type, opts \\ [])
-  def query(queries, type, opts), do: [Steroids.BoolQuery.new(type, buildClause(opts)) | queries]
+  def query(queries, type, opts), do:
+    [Steroids.BoolQuery.new(type, buildClause(opts)) | queries]
 
-  # # Alias for query
-  # def andQuery(queries, args) do
-  #   query(queryBuilder, args)
-  # end
+  # Alias for query
+  @spec andQuery(list, atom, keyword) :: list
+  def andQuery(queries, type, opts \\ []), do: query(queries, type, opts)
 
-  # # Alias for query
-  # def addQuery(queries, args) do
-  #   query(queryBuilder, args)
-  # end
+  # Alias for query
+  @spec addQuery(list, atom, keyword) :: list
+  def addQuery(queries, type, opts \\ []), do: query(queries, type, opts)
 
-  # def orQuery(queries, args) do
-  #   makeQuery(queries, :or, args)
-  # end
+  @spec orQuery(list, atom, keyword) :: list
+  def orQuery(queries, type, opts \\ [])
+  def orQuery(queries, type, opts), do:
+    [Steroids.BoolQuery.new(:or, type, buildClause(opts)) | queries]
 
-  # def notQuery(queries, args) do
-  #   makeQuery(queries, :not, args)
-  # end
+  @spec notQuery(list, atom, keyword) :: list
+  def notQuery(queries, type, opts \\ [])
+  def notQuery(queries, type, opts), do:
+    [Steroids.BoolQuery.new(:not, type, buildClause(opts)) | queries]
 
   @spec getQuery(list) :: map
   def getQuery(queries), do: boolMerge(queries)
