@@ -7,25 +7,42 @@ defmodule QueryBuilderTest do
     getQuery: 1]
   doctest Steroids.QueryBuilder
 
-  test "Correctly set the query minimum to match" do
-    expected = %{
-      bool: %{
-        minimum_should_match: 5,
-        should: [
-          %{ term: %{ user: "me" } },
-          %{ term: %{ user: "you" } }
-        ]
+  describe "queryMinimumShouldMatch/2" do
+    test "should set the minimum_should_match" do
+      expected = %{
+        bool: %{
+          minimum_should_match: 5,
+          should: [
+            %{ term: %{ user: "me" } },
+            %{ term: %{ user: "you" } }
+          ]
+        }
       }
-    }
-    actual = Steroids.QueryBuilder.new
-    |> orQuery(:term, field: :user, value: "you")
-    |> orQuery(:term, field: :user, value: "me")
-    |> queryMinimumShouldMatch(5)
-    |> getQuery
+      actual = Steroids.QueryBuilder.new
+      |> orQuery(:term, field: :user, value: "you")
+      |> orQuery(:term, field: :user, value: "me")
+      |> queryMinimumShouldMatch(5)
+      |> getQuery
 
-    assert expected == actual
+      assert expected == actual
+    end
+
+    test "should not set the minimum_should_match" do
+      expected = %{
+        bool: %{
+          should: [
+            %{ term: %{ user: "me" } },
+          ]
+        }
+      }
+      actual = Steroids.QueryBuilder.new
+      |> orQuery(:term, field: :user, value: "me")
+      |> queryMinimumShouldMatch(5)
+      |> getQuery
+
+      assert expected == actual
+    end
   end
-
   describe "query/2" do
     test "when only a type is supplied" do
       expected = %{ match_all: %{} }

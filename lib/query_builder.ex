@@ -37,13 +37,15 @@
   Minimum Should Match
   https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html
   """
+  def queryMinimumShouldMatch([], _param), do: []
   def queryMinimumShouldMatch(queries, param) do
     should_entries = Enum.filter(queries, fn
       {:bool, _, :should, _} -> true
       _ -> false
     end)
-    if length(should_entries) > 1 do
-      [{:minimum_should_match, param} | queries]
+    case length(should_entries) > 1 do
+      true -> [{:minimum_should_match, param} | queries]
+      false -> queries
     end
   end
 end

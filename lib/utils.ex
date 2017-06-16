@@ -1,6 +1,11 @@
 defmodule Steroids.Utils do
   @spec boolMerge(list) :: map
   def boolMerge([]), do: %{}
+  # If we are a single bool should we need to include the condition
+  def boolMerge([{:bool, field, :should, query} | queries]) when length(queries) == 0, do:
+    %{ bool: %{ should: List.wrap(%{ field => query }) } }
+  def boolMerge([{:bool, field, :must_not, query} | queries]) when length(queries) == 0, do:
+    %{ bool: %{ must_not: List.wrap(%{ field => query }) } }
   def boolMerge(queries) when length(queries) == 1 do
     item = List.last(queries)
     %{ elem(item, 1) => elem(item, 3) }

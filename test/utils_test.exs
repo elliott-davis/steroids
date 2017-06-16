@@ -14,16 +14,42 @@ defmodule UtilsTest do
                   {:bool, :term, :must, %{ user: "him" } }]
 
       expected = %{
-          bool: %{
-            must: [
-              %{ term: %{ user: "me" } },
-              %{ term: %{ user: "him" } }
-            ]
-          }
+        bool: %{
+          must: [
+            %{ term: %{ user: "me" } },
+            %{ term: %{ user: "him" } }
+          ]
         }
+      }
 
       actual = boolMerge(queries)
 
+      assert expected == actual
+    end
+
+    test "should render bool for single should query" do
+      queries = [{:bool, :term, :should, %{ user: "me" } }]
+      expected = %{
+        bool: %{
+          should: [
+            %{ term: %{ user: "me" } }
+          ]
+        }
+      }
+      actual = boolMerge(queries)
+      assert expected == actual
+    end
+
+    test "should render bool for single must_not query" do
+      queries = [{:bool, :term, :must_not, %{ user: "me" } }]
+      expected = %{
+        bool: %{
+          must_not: [
+            %{ term: %{ user: "me" } }
+          ]
+        }
+      }
+      actual = boolMerge(queries)
       assert expected == actual
     end
 
