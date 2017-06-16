@@ -3,9 +3,10 @@
   @moduledoc """
   Documentation for Query Module.
   """
-
+  @spec new() :: list
   def new, do: []
 
+  @spec query(list, atom, keyword) :: list
   def query(queries, type, opts \\ [])
   def query(queries, type, opts), do: [Steroids.BoolQuery.new(type, buildClause(opts)) | queries]
 
@@ -27,6 +28,7 @@
   #   makeQuery(queries, :not, args)
   # end
 
+  @spec getQuery(list) :: map
   def getQuery(queries), do: boolMerge(queries)
 
   @doc """

@@ -1,4 +1,5 @@
 defmodule Steroids.Utils do
+  @spec boolMerge(list) :: map
   def boolMerge([]), do: %{}
   def boolMerge(queries) when length(queries) == 1 do
     item = List.last(queries)
@@ -10,6 +11,7 @@ defmodule Steroids.Utils do
     end)
   end
 
+  @spec buildClause(list) :: map
   def buildClause(opts \\ []) do
     buildClause(Keyword.get(opts, :field, %{}), Keyword.get(opts, :value), Keyword.get(opts, :args, %{}))
   end
