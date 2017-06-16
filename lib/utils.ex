@@ -6,8 +6,11 @@ defmodule Steroids.Utils do
     %{ elem(item, 1) => elem(item, 3) }
   end
   def boolMerge(queries) do
-    Enum.reduce(queries, %{}, fn({:bool, field, condition, query}, acc) ->
-      Map.merge(acc, %{bool: %{condition => List.wrap(%{ field => query})}}, &customizer(&1, &2, &3))
+    Enum.reduce(queries, %{}, fn
+      ({:bool, field, condition, query}, acc) ->
+        Map.merge(acc, %{bool: %{condition => List.wrap(%{ field => query})}}, &customizer(&1, &2, &3))
+      ({:minimum_should_match, count}, acc) ->
+        Map.merge(acc, %{bool: %{ minimum_should_match: count } })
     end)
   end
 

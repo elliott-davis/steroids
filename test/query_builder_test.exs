@@ -8,14 +8,6 @@ defmodule QueryBuilderTest do
   doctest Steroids.QueryBuilder
 
   test "Correctly set the query minimum to match" do
-    query = %{
-      bool: %{
-        should: [
-          %{ term: %{ user: "me" } },
-          %{ term: %{ user: "you" } }
-        ]
-      }
-    }
     expected = %{
       bool: %{
         minimum_should_match: 5,
@@ -25,7 +17,12 @@ defmodule QueryBuilderTest do
         ]
       }
     }
-    actual = queryMinimumShouldMatch(query, 5)
+    actual = Steroids.QueryBuilder.new
+    |> orQuery(:term, field: :user, value: "you")
+    |> orQuery(:term, field: :user, value: "me")
+    |> queryMinimumShouldMatch(5)
+    |> getQuery
+
     assert expected == actual
   end
 

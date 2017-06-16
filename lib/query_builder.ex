@@ -3,7 +3,7 @@
   @moduledoc """
   Documentation for Query Module.
   """
-  
+
   @spec new() :: list
   def new, do: []
 
@@ -37,14 +37,13 @@
   Minimum Should Match
   https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html
   """
-  def queryMinimumShouldMatch(queryBuilder, param) do
-    addMinimumShouldMatch(queryBuilder, param)
-  end
-
-  defp addMinimumShouldMatch(%{bool: %{should: values}} = queryBuilder, param) when length(values) > 1 do
-    put_in(queryBuilder, [:bool, :minimum_should_match], param)
-  end
-  defp addMinimumShouldMatch(queryBuilder, _param) do
-    queryBuilder
+  def queryMinimumShouldMatch(queries, param) do
+    should_entries = Enum.filter(queries, fn
+      {:bool, _, :should, _} -> true
+      _ -> false
+    end)
+    if length(should_entries) > 1 do
+      [{:minimum_should_match, param} | queries]
+    end
   end
 end
