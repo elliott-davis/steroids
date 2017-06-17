@@ -115,6 +115,26 @@ defmodule QueryBuilderTest do
       |> getQuery
       assert expected == actual
     end
+
+    test "should merge nested queries" do
+      expected = %{
+        has_child: %{
+          type: "blog_tag",
+          query: %{
+            term: %{ tag: "something" }
+          }
+        }
+      }
+
+      nested = Steroids.QueryBuilder.new
+      |> query(:term, field: :tag, value: "something")
+
+      actual = Steroids.QueryBuilder.new
+      |> query(:has_child, field: :type, value: "blog_tag", nested: nested)
+      |> getQuery
+
+      assert expected == actual
+    end
   end
   
   describe "orQuery/3" do

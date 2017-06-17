@@ -9,9 +9,10 @@
 
   @spec query(list, atom, keyword) :: list
   def query(queries, type, opts \\ [])
-  def query(queries, type, opts), do:
+  def query(queries, type, opts) do
+    opts = mergeNested(Keyword.get(opts, :nested), opts)
     [Steroids.BoolQuery.new(type, buildClause(opts)) | queries]
-
+  end
   # Alias for query
   @spec andQuery(list, atom, keyword) :: list
   def andQuery(queries, type, opts \\ []), do: query(queries, type, opts)
@@ -48,4 +49,8 @@
       false -> queries
     end
   end
+
+  defp mergeNested(nil, opts), do: opts
+  defp mergeNested(nested, opts), do:
+    Keyword.put(opts, :args, Map.merge(%{ query: getQuery(nested) }, Keyword.get(opts, :args, %{})))
 end
