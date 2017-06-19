@@ -135,6 +135,40 @@ defmodule QueryBuilderTest do
 
       assert expected == actual
     end
+
+    test "should merge a double nested query" do
+      expected = %{
+        has_child: %{
+          type: "blog_tag",
+          query: %{
+            term: %{
+              tag: "something",
+              query: %{
+                bool: %{
+                  must: [
+                    %{ term: %{ tag3: "foo" } },
+                    %{ term: %{ tag2: "something_else" } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+
+      nest2 = Steroids.QueryBuilder.new
+      |> query(:term, field: :tag2, value: "something_else")
+      |> query(:term, field: :tag3, value: "foo")
+
+      nested = Steroids.QueryBuilder.new
+      |> query(:term, field: :tag, value: "something", nested: nest2)
+
+      actual = Steroids.QueryBuilder.new
+      |> query(:has_child, field: :type, value: "blog_tag", nested: nested)
+      |> getQuery
+
+      assert expected == actual
+    end
   end
   
   describe "orQuery/3" do
@@ -150,6 +184,32 @@ defmodule QueryBuilderTest do
       actual = Steroids.QueryBuilder.new
       |> orQuery(:query_string, field: :query, value: "this is a test")
       |> orQuery(:match, field: :search, value: "this is not a test")
+      |> getQuery
+
+      assert expected == actual
+    end
+
+    test "should merge nested or query" do
+      expected = %{
+        has_child: %{
+          type: "blog_tag",
+          query: %{
+            bool: %{
+              should: [
+                %{ term: %{ tag: "something else"} },
+                %{ term: %{ tag: "something" } }
+              ]
+            }
+          }
+        }
+      }
+
+      nested = Steroids.QueryBuilder.new
+      |> orQuery(:term, field: :tag, value: "something")
+      |> orQuery(:term, field: :tag, value: "something else")
+
+      actual = Steroids.QueryBuilder.new
+      |> query(:has_child, field: :type, value: "blog_tag", nested: nested)
       |> getQuery
 
       assert expected == actual

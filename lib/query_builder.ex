@@ -23,13 +23,17 @@
 
   @spec orQuery(list, atom, keyword) :: list
   def orQuery(queries, type, opts \\ [])
-  def orQuery(queries, type, opts), do:
+  def orQuery(queries, type, opts) do
+    opts = mergeNested(Keyword.get(opts, :nested), opts)
     [Steroids.BoolQuery.new(:or, type, buildClause(opts)) | queries]
+  end
 
   @spec notQuery(list, atom, keyword) :: list
   def notQuery(queries, type, opts \\ [])
-  def notQuery(queries, type, opts), do:
+  def notQuery(queries, type, opts) do
+    opts = mergeNested(Keyword.get(opts, :nested), opts)
     [Steroids.BoolQuery.new(:not, type, buildClause(opts)) | queries]
+  end
 
   @spec getQuery(list) :: map
   def getQuery(queries), do: boolMerge(queries)
