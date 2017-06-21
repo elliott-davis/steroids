@@ -18,7 +18,7 @@ defmodule QueryBuilderTest do
           ]
         }
       }
-      actual = Steroids.QueryBuilder.new
+      actual = []
       |> orQuery(:term, field: :user, value: "you")
       |> orQuery(:term, field: :user, value: "me")
       |> queryMinimumShouldMatch(5)

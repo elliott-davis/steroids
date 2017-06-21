@@ -11,28 +11,24 @@ defmodule Steroids.FilterBuilder do
   def filter(filters, type, opts \\ [])
   def filter(filters, type, opts) do
     opts = mergeNested(Keyword.get(opts, :nested), opts)
-    [Steroids.BoolQuery.new(type, buildClause(opts)) | filters]
+    [Steroids.BoolQuery.new(:filter, type, buildClause(opts)) | filters]
   end
-  # Alias for filter
-  @spec andFilter(list, atom, keyword) :: list
-  def andFilter(filters, type, opts \\ []), do: filter(filters, type, opts)
 
-  # Alias for filter
-  @spec addFilter(list, atom, keyword) :: list
-  def addFilter(filters, type, opts \\ []), do: filter(filters, type, opts)
+  defdelegate andFilter(filters, type, opts \\ []), to: Steroids.FilterBuilder, as: :filter
+  defdelegate addFilter(filters, type, opts \\ []), to: Steroids.FilterBuilder, as: :filter
 
   @spec orFilter(list, atom, keyword) :: list
   def orFilter(filters, type, opts \\ [])
   def orFilter(filters, type, opts) do
     opts = mergeNested(Keyword.get(opts, :nested), opts)
-    [Steroids.BoolQuery.new(:or, type, buildClause(opts)) | filters]
+    [Steroids.BoolQuery.new(:filter, :or, type, buildClause(opts)) | filters]
   end
 
   @spec notFilter(list, atom, keyword) :: list
   def notFilter(filters, type, opts \\ [])
   def notFilter(filters, type, opts) do
     opts = mergeNested(Keyword.get(opts, :nested), opts)
-    [Steroids.BoolQuery.new(:not, type, buildClause(opts)) | filters]
+    [Steroids.BoolQuery.new(:filter, :not, type, buildClause(opts)) | filters]
   end
 
   @spec getFilter(list) :: map
@@ -45,11 +41,11 @@ defmodule Steroids.FilterBuilder do
   def filterMinimumShouldMatch([], _param), do: []
   def filterMinimumShouldMatch(filters, param) do
     should_entries = Enum.filter(filters, fn
-      {:bool, _, :should, _} -> true
+      {:filter, _, :should, _} -> true
       _ -> false
     end)
     case length(should_entries) > 1 do
-      true -> [{:minimum_should_match, param} | filters]
+      true -> [{:minimum_should_match, :filter, param} | filters]
       false -> filters
     end
   end

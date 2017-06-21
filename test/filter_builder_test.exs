@@ -11,14 +11,18 @@ defmodule FilterBuilderTest do
     test "should set the minimum_should_match" do
       expected = %{
         bool: %{
-          minimum_should_match: 5,
-          should: [
-            %{ term: %{ user: "me" } },
-            %{ term: %{ user: "you" } }
-          ]
+          filter: %{
+            bool: %{
+              should: [
+                %{ term: %{ user: "me" } },
+                %{ term: %{ user: "you" } }
+              ],
+              minimum_should_match: 5
+            }
+          }
         }
       }
-      actual = Steroids.FilterBuilder.new
+      actual = []
       |> orFilter(:term, field: :user, value: "you")
       |> orFilter(:term, field: :user, value: "me")
       |> filterMinimumShouldMatch(5)
@@ -30,12 +34,16 @@ defmodule FilterBuilderTest do
     test "should not set the minimum_should_match" do
       expected = %{
         bool: %{
-          should: [
-            %{ term: %{ user: "me" } },
-          ]
+          filter: %{
+            bool: %{
+              should: [
+                %{ term: %{ user: "me" } },
+              ]
+            }
+          }
         }
       }
-      actual = Steroids.FilterBuilder.new
+      actual = []
       |> orFilter(:term, field: :user, value: "me")
       |> filterMinimumShouldMatch(5)
       |> getFilter
@@ -103,15 +111,19 @@ defmodule FilterBuilderTest do
     test "when multiple filters are specified" do
       expected = %{
         bool: %{
-          must: [
-            %{ match: %{ search: "this is not a test" } },
-            %{ filter_string: %{ filter: "this is a test" } }
-          ]
+          filter: %{
+            bool: %{
+              must: [
+                %{ match: %{ test: "this is not a test" } },
+                %{ match: %{ test: "this is a test" } }
+              ]
+            }
+          }
         }
       }
       actual = Steroids.FilterBuilder.new
-      |> filter(:filter_string, field: :filter, value: "this is a test")
-      |> filter(:match, field: :search, value: "this is not a test")
+      |> filter(:match, field: :test, value: "this is a test")
+      |> filter(:match, field: :test, value: "this is not a test")
       |> getFilter
       assert expected == actual
     end
@@ -131,7 +143,7 @@ defmodule FilterBuilderTest do
 
       actual = Steroids.FilterBuilder.new
       |> filter(:has_child, field: :type, value: "blog_tag", nested: nested)
-      |> getFilter
+      |> getFilter()
 
       assert expected == actual
     end
@@ -172,13 +184,17 @@ defmodule FilterBuilderTest do
   end
   
   describe "orFilter/3" do
-    test "when multiple or filteries are specified" do
+    test "when multiple or filters are specified" do
       expected = %{
         bool: %{
-          should: [
-            %{ match: %{ search: "this is not a test" } },
-            %{ filter_string: %{ filter: "this is a test" } }
-          ]
+          filter: %{
+            bool: %{
+              should: [
+                %{ match: %{ search: "this is not a test" } },
+                %{ filter_string: %{ filter: "this is a test" } }
+              ]
+            }
+          }
         }
       }
       actual = Steroids.FilterBuilder.new
@@ -204,7 +220,7 @@ defmodule FilterBuilderTest do
         }
       }
 
-      nested = Steroids.FilterBuilder.new
+      nested = []
       |> orFilter(:term, field: :tag, value: "something")
       |> orFilter(:term, field: :tag, value: "something else")
 
@@ -219,14 +235,18 @@ defmodule FilterBuilderTest do
   test "heterogeneous filter" do
     expected = %{
       bool: %{
-        must: [
-          %{ match: %{ search: "this is not a test" } },
-          %{ filter_string: %{ filter: "this is a test" } }
-        ],
-        should: [
-          %{ match: %{ search: "this is not a test" } },
-          %{ filter_string: %{ filter: "this is a test" } }
-        ]
+        filter: %{
+          bool: %{
+            must: [
+              %{ match: %{ search: "this is not a test" } },
+              %{ filter_string: %{ filter: "this is a test" } }
+            ],
+            should: [
+              %{ match: %{ search: "this is not a test" } },
+              %{ filter_string: %{ filter: "this is a test" } }
+            ]
+          }
+        }
       }
     }
       

@@ -11,28 +11,24 @@
   def query(queries, type, opts \\ [])
   def query(queries, type, opts) do
     opts = mergeNested(Keyword.get(opts, :nested), opts)
-    [Steroids.BoolQuery.new(type, buildClause(opts)) | queries]
+    [Steroids.BoolQuery.new(:query, type, buildClause(opts)) | queries]
   end
-  # Alias for query
-  @spec andQuery(list, atom, keyword) :: list
-  def andQuery(queries, type, opts \\ []), do: query(queries, type, opts)
 
-  # Alias for query
-  @spec addQuery(list, atom, keyword) :: list
-  def addQuery(queries, type, opts \\ []), do: query(queries, type, opts)
+  defdelegate andQuery(queries, type, opts \\ []), to: Steroids.QueryBuilder, as: :query
+  defdelegate addQuery(queries, type, opts \\ []), to: Steroids.QueryBuilder, as: :query
 
   @spec orQuery(list, atom, keyword) :: list
   def orQuery(queries, type, opts \\ [])
   def orQuery(queries, type, opts) do
     opts = mergeNested(Keyword.get(opts, :nested), opts)
-    [Steroids.BoolQuery.new(:or, type, buildClause(opts)) | queries]
+    [Steroids.BoolQuery.new(:query, :or, type, buildClause(opts)) | queries]
   end
 
   @spec notQuery(list, atom, keyword) :: list
   def notQuery(queries, type, opts \\ [])
   def notQuery(queries, type, opts) do
     opts = mergeNested(Keyword.get(opts, :nested), opts)
-    [Steroids.BoolQuery.new(:not, type, buildClause(opts)) | queries]
+    [Steroids.BoolQuery.new(:query, :not, type, buildClause(opts)) | queries]
   end
 
   @spec getQuery(list) :: map
@@ -45,11 +41,12 @@
   def queryMinimumShouldMatch([], _param), do: []
   def queryMinimumShouldMatch(queries, param) do
     should_entries = Enum.filter(queries, fn
-      {:bool, _, :should, _} -> true
+      {:query, _, :should, _} -> true
       _ -> false
     end)
+    IO.inspect should_entries
     case length(should_entries) > 1 do
-      true -> [{:minimum_should_match, param} | queries]
+      true -> [{:minimum_should_match, :query, param} | queries]
       false -> queries
     end
   end

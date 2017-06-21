@@ -4,22 +4,22 @@ defmodule BoolQueryTest do
 
   test "or condition returns should" do
     query = %{term: %{user: "foo"} }
-    expected = {:bool, :term, :should, query }
-    actual = Steroids.BoolQuery.new(:or, :term, query)
+    expected = {:filter, :term, :should, query }
+    actual = Steroids.BoolQuery.new(:filter, :or, :term, query)
     assert actual == expected
   end
   
   test "invalid bool types are converted to :must" do
     query = %{term: %{user: "foo"} }
-    expected = {:bool, :term, :must, query}
-    actual = Steroids.BoolQuery.new(:invalid, :term, query)
+    expected = {:query, :term, :must, query}
+    actual = Steroids.BoolQuery.new(:query, :invalid, :term, query)
     assert actual == expected
   end
 
   test "when no bool type specified :must is used" do
     query = %{term: %{user: "foo"} }
-    expected = {:bool, :term, :must, query}
-    actual = Steroids.BoolQuery.new(:term, query)
+    expected = {:query, :term, :must, query}
+    actual = Steroids.BoolQuery.new(:query, :term, query)
     assert actual == expected
   end
 end

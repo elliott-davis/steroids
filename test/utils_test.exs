@@ -4,14 +4,14 @@ defmodule UtilsTest do
   doctest Steroids.Utils
   describe "Utils.boolMerge/1" do
     test "should do nothing with a single query" do
-      q = [{:bool, :somequery, :must, %{} }]
+      q = [{:query, :somequery, :must, %{} }]
       result = boolMerge(q)
       assert %{ somequery: %{} } == result
     end
 
     test "should combine two queries into a bool" do
-      queries = [{:bool, :term, :must, %{ user: "me" } },
-                  {:bool, :term, :must, %{ user: "him" } }]
+      queries = [{:query, :term, :must, %{ user: "me" } },
+                  {:query, :term, :must, %{ user: "him" } }]
 
       expected = %{
         bool: %{
@@ -28,7 +28,7 @@ defmodule UtilsTest do
     end
 
     test "should render bool for single should query" do
-      queries = [{:bool, :term, :should, %{ user: "me" } }]
+      queries = [{:query, :term, :should, %{ user: "me" } }]
       expected = %{
         bool: %{
           should: [
@@ -41,7 +41,7 @@ defmodule UtilsTest do
     end
 
     test "should render bool for single must_not query" do
-      queries = [{:bool, :term, :must_not, %{ user: "me" } }]
+      queries = [{:query, :term, :must_not, %{ user: "me" } }]
       expected = %{
         bool: %{
           must_not: [
@@ -54,9 +54,9 @@ defmodule UtilsTest do
     end
 
     test "should combine two queries accounting for boolType" do
-        queries = [{:bool, :term, :must, %{ user: "me" } },
-                  {:bool, :term, :must_not, %{ user: "you" } },
-                  {:bool, :term, :must, %{ user: "him" } }]
+        queries = [{:query, :term, :must, %{ user: "me" } },
+                  {:query, :term, :must_not, %{ user: "you" } },
+                  {:query, :term, :must, %{ user: "him" } }]
 
         expected = %{
           bool: %{

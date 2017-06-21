@@ -2,9 +2,9 @@ defmodule Steroids.Utils do
   @spec boolMerge(list) :: map
   def boolMerge([]), do: %{}
   # If we are a single bool should we need to include the condition
-  def boolMerge([{:bool, field, :should, query} | queries]) when length(queries) == 0, do:
+  def boolMerge([{_type, field, :should, query}]), do:
     %{ bool: %{ should: List.wrap(%{ field => query }) } }
-  def boolMerge([{:bool, field, :must_not, query} | queries]) when length(queries) == 0, do:
+  def boolMerge([{_type, field, :must_not, query}]), do:
     %{ bool: %{ must_not: List.wrap(%{ field => query }) } }
   def boolMerge(queries) when length(queries) == 1 do
     item = List.last(queries)
@@ -12,9 +12,13 @@ defmodule Steroids.Utils do
   end
   def boolMerge(queries) do
     Enum.reduce(queries, %{}, fn
-      ({:bool, field, condition, query}, acc) ->
+      ({:query, field, condition, query}, acc) ->
         Map.merge(acc, %{bool: %{condition => List.wrap(%{ field => query})}}, &customizer(&1, &2, &3))
-      ({:minimum_should_match, count}, acc) ->
+      ({:filter, field, condition, query}, acc) ->
+        Map.merge(acc, %{bool: %{ filter: %{ bool: %{ condition => List.wrap(%{ field => query})}}}}, &customizer(&1, &2, &3))
+      ({:minimum_should_match, :filter, count}, acc) ->
+        Map.merge(acc, %{bool: %{ filter: %{ bool: %{ minimum_should_match: count } } } })
+      ({:minimum_should_match, :query, count}, acc) ->
         Map.merge(acc, %{bool: %{ minimum_should_match: count } })
     end)
   end
