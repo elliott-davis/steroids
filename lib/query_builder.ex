@@ -44,7 +44,6 @@
       {:query, _, :should, _} -> true
       _ -> false
     end)
-    IO.inspect should_entries
     case length(should_entries) > 1 do
       true -> [{:minimum_should_match, :query, param} | queries]
       false -> queries
