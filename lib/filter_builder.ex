@@ -51,6 +51,9 @@ defmodule Steroids.FilterBuilder do
   end
 
   defp mergeNested(nil, opts), do: opts
-  defp mergeNested(nested, opts), do:
-    Keyword.put(opts, :args, Map.merge(%{ filter: getFilter(nested) }, Keyword.get(opts, :args, %{})))
+  defp mergeNested(nested, opts) do
+    # We need to convert these filters to queries so they are properly nested in the filter context as queries
+    list = Enum.map(nested, fn({:filter, term, condition, query}) -> {:query, term, condition, query} end)
+    Keyword.put(opts, :args, Map.merge(%{ filter: getFilter(list) }, Keyword.get(opts, :args, %{})))
+  end
 end
